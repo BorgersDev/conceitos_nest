@@ -1,0 +1,8 @@
+import { Injectable } from "@nestjs/common";
+
+@Injectable()
+export class ConceptsService {
+  handleHome(): string {
+    return 'Home Concepts Service test'
+  }
+}
