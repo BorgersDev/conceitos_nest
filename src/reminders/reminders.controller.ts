@@ -1,21 +1,23 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { RemindersService } from './reminders.service';
 
 @Controller('reminders')
 export class RemindersController {
+  constructor(private readonly remindersService: RemindersService) {}
   @Get()
   findAll(@Query() pagination: any) {
     const { limit = 10, offset = 0 } = pagination
-    return `Return all reminders with limit: ${limit} and offset: ${offset}`
+    return this.remindersService.findAll({ limit, offset })
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return `Return one reminder with id ${id}`
+    return this.remindersService.findOne(id)
   }
 
   @Post()
   create(@Body() body: any) {
-    return `Create a new reminder with title "${body.title}"`
+    return this.remindersService.create(body)
   }
 
   @Patch(':id')
@@ -28,6 +30,6 @@ export class RemindersController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return `Delete reminder with id: ${id}`
+    return this.remindersService.remove(id)
   }
 }
