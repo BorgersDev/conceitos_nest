@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 
 @Controller('reminders')
 export class RemindersController {
   @Get()
-  findAll() {
-    return 'Return all reminders'
+  findAll(@Query() pagination: any) {
+    const { limit = 10, offset = 0 } = pagination
+    return `Return all reminders with limit: ${limit} and offset: ${offset}`
   }
 
   @Get(':id')
