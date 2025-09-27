@@ -7,7 +7,7 @@ export class RemindersController {
   @Get()
   findAll(@Query() pagination: any) {
     const { limit = 10, offset = 0 } = pagination
-    return this.remindersService.findAll({ limit, offset })
+    return this.remindersService.findAll();
   }
 
   @Get(':id')
@@ -22,10 +22,7 @@ export class RemindersController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() body: any) {
-    return {
-      id,
-      ...body,
-    }
+    return this.remindersService.update(id, body)
   }
 
   @Delete(':id')
