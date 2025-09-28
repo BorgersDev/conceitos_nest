@@ -21,8 +21,8 @@ export class RemindersService {
     return this.reminders;
   }
 
-  findOne(id: string) {
-    const reminder = this.reminders.find((reminder) => reminder.id === Number(id));
+  findOne(id: number) {
+    const reminder = this.reminders.find((reminder) => reminder.id === id);
     if (!reminder) {
       throw new NotFoundException('Reminder not found');
     }
@@ -42,8 +42,8 @@ export class RemindersService {
     return newReminder;
   }
 
-  update(id: string, data: any) {
-    const reminderIndex = this.reminders.findIndex((reminder) => reminder.id === Number(id));
+  update(id: number, data: any) {
+    const reminderIndex = this.reminders.findIndex((reminder) => reminder.id === id);
     if (reminderIndex < 0) {
       throw new NotFoundException('Reminder not found');
     }
@@ -56,8 +56,8 @@ export class RemindersService {
     return updatedReminder;
   }
 
-  remove(id: string) {
-    const reminderIndex = this.reminders.findIndex((reminder) => reminder.id === Number(id));
+  remove(id: number) {
+    const reminderIndex = this.reminders.findIndex((reminder) => reminder.id === id);
     if (reminderIndex < 0) {
       throw new NotFoundException('Reminder not found');
     }
