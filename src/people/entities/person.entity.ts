@@ -1,5 +1,6 @@
 import { IsEmail } from "class-validator";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Reminder } from "src/reminders/entities/reminder.entity";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Person {
@@ -20,6 +21,12 @@ export class Person {
   createdAt?: Date;
 
   @UpdateDateColumn()
-  updatedAt?: Date;
+  updatedAt?: Date;  
+
+  @OneToMany(() => Reminder, reminder => reminder.from)
+  remindersFrom: Reminder[];
+
+  @OneToMany(() => Reminder, reminder => reminder.to)
+  remindersTo: Reminder[];
 
 }

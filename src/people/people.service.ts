@@ -28,19 +28,38 @@ export class PeopleService {
     }
   }
 
-  findAll() {
-    return `This action returns all people`;
+  async findAll() {
+    return await this.peopleRepository.find({
+      order: {
+        id: 'desc'
+      }
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} person`;
+  async findOne(id: number) {
+    return await this.peopleRepository.findOneBy({ id});
   }
 
-  update(id: number, updatePersonDto: UpdatePersonDto) {
-    return `This action updates a #${id} person`;
+  async update(id: number, updatePersonDto: UpdatePersonDto) {
+    const personData = {
+      passwordHash: updatePersonDto?.password,
+      name: updatePersonDto?.name,
+    }
+    const person = await this.peopleRepository.preload({
+      id,
+      ...personData,
+    })
+    if(!person) {
+      throw new ConflictException('Person not found');
+    }
+    return this.peopleRepository.save(person);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} person`;
+  async remove(id: number) {
+    const person = await this.peopleRepository.findOneBy({ id });
+    if(!person) {
+      throw new ConflictException('Person not found');
+    }
+    return this.peopleRepository.remove(person);
   }
 }

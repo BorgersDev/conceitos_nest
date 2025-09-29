@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Person } from "src/people/entities/person.entity";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Reminder {
@@ -9,12 +10,6 @@ export class Reminder {
   @Column({type: 'varchar', length: 255})
   text: string;
 
-  @Column({type: 'varchar', length: 255})
-  from: string;
-
-  @Column({type: 'varchar', length: 255})
-  to: string;   
-
   @Column({type: 'boolean'})
   read: boolean;
 
@@ -23,4 +18,12 @@ export class Reminder {
 
   @UpdateDateColumn()
   updatedAt?: Date;
+
+  @ManyToOne(() => Person)
+  @JoinColumn({name: 'from'})
+  from: Person;
+
+  @ManyToOne(() => Person)
+  @JoinColumn({name: 'to'})
+  to: Person                                                                                                                           ;   
 }
