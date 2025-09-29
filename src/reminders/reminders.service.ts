@@ -2,67 +2,61 @@ import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestj
 import { Reminder } from './entities/reminder.entity';
 import { read } from 'fs';
 import { create } from 'domain';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UpdateReminderDto } from './dto/update-recado.dto';
 
 @Injectable()
 export class RemindersService {
-  private lastId = 1;
-  private reminders: Reminder[] = [
-    {
-      id: 1,
-      text: 'Estudar NestJS',
-      from: 'Arthur Borges',
-      to: 'Arthur Borges',
-      read: false,
-      createdAt: new Date()
-    },
-  ];
+  constructor(
+    @InjectRepository(Reminder)
+    private remindersRepository: Repository<Reminder>,
+  ) {}
 
-  findAll() {
-    return this.reminders;
+  async findAll() {
+    const reminders = await this.remindersRepository.find();
+    return reminders;
   }
 
-  findOne(id: number) {
-    const reminder = this.reminders.find((reminder) => reminder.id === id);
+  async findOne(id: number) {
+    const reminder = await this.remindersRepository.findOne({ where: { id } });
     if (!reminder) {
       throw new NotFoundException('Reminder not found');
     }
     return reminder;
   }
 
-  create(data: any) {
-    this.lastId++;
+  async create(data: any) {
     const newReminder = {
-      id: this.lastId,
       ...data,
       read: false,
       createdAt: new Date()
     }
-    this.reminders.push(newReminder);
-    console.log('New reminder created')
-    return newReminder;
+
+    const reminder = this.remindersRepository.create(newReminder)
+    return this.remindersRepository.save(reminder);
   }
 
-  update(id: number, data: any) {
-    const reminderIndex = this.reminders.findIndex((reminder) => reminder.id === id);
-    if (reminderIndex < 0) {
+  async update(id: number, updateReminderDto: UpdateReminderDto) {
+    const partialUpdateReminderDto = {
+      read: updateReminderDto?.read,
+      text: updateReminderDto?.text,
+    }
+    const reminder = await this.remindersRepository.preload({ 
+      id,
+      ...partialUpdateReminderDto,
+    });
+    if (!reminder) {
       throw new NotFoundException('Reminder not found');
     }
-    const updatedReminder = {
-      ...this.reminders[reminderIndex],
-      ...data
-    }
-    this.reminders[reminderIndex] = updatedReminder;
-    console.log('Reminder updated')
-    return updatedReminder;
+    return this.remindersRepository.save(reminder);
   }
 
-  remove(id: number) {
-    const reminderIndex = this.reminders.findIndex((reminder) => reminder.id === id);
-    if (reminderIndex < 0) {
+  async remove(id: number) {
+    const reminder = await this.remindersRepository.findOneBy({ id });
+    if (!reminder) {
       throw new NotFoundException('Reminder not found');
     }
-    this.reminders.splice(reminderIndex, 1);
-    console.log('Reminder deleted')
-    return { message: 'Reminder deleted' };
+    return this.remindersRepository.remove(reminder); 
   }
 }
