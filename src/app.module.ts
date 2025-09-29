@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RemindersModule } from './reminders/reminders.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PeopleModule } from './people/people.module';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -14,7 +15,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     database: 'conceitos-nest',
     autoLoadEntities: true,
     synchronize: true,
-  }),RemindersModule],
+  }),RemindersModule, PeopleModule],
   controllers: [AppController],
   providers: [AppService],
 })
