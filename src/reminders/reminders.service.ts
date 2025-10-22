@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { UpdateReminderDto } from './dto/update-recado.dto';
 import { PeopleService } from 'src/people/people.service';
 import { CreateReminderDto } from './dto/create-reminder.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class RemindersService {
@@ -14,8 +15,12 @@ export class RemindersService {
     private readonly people: PeopleService,
   ) {}
 
-  async findAll() {
+  async findAll(pagination?: PaginationDto) {
+    const { limit = 10, offset = 0 } = pagination || {}
+
     const reminders = await this.remindersRepository.find({
+      take:limit,
+      skip: offset,
       relations: [ 'from', 'to' ],
       order: {
         id: 'desc'
@@ -42,7 +47,7 @@ export class RemindersService {
     return reminder;
   }
 
-  async create(data: any) {
+  async create(data: CreateReminderDto) {
     const { fromId, toId } = data;
 
     const from = await this.people.findOne(fromId);
