@@ -37,7 +37,11 @@ export class PeopleService {
   }
 
   async findOne(id: number) {
-    return await this.peopleRepository.findOneBy({ id});
+    const person = await this.peopleRepository.findOneBy({ id});
+    if (!person) {
+      throw new ConflictException('Person not found');
+    }
+    return person;
   }
 
   async update(id: number, updatePersonDto: UpdatePersonDto) {
