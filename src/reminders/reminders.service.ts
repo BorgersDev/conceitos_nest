@@ -1,20 +1,36 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Reminder } from './entities/reminder.entity';
-import { read } from 'fs';
-import { create } from 'domain';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UpdateReminderDto } from './dto/update-recado.dto';
+import { PeopleService } from 'src/people/people.service';
+import { CreateReminderDto } from './dto/create-reminder.dto';
 
 @Injectable()
 export class RemindersService {
   constructor(
     @InjectRepository(Reminder)
     private remindersRepository: Repository<Reminder>,
+    private readonly people: PeopleService,
   ) {}
 
   async findAll() {
-    const reminders = await this.remindersRepository.find();
+    const reminders = await this.remindersRepository.find({
+      relations: [ 'from', 'to' ],
+      order: {
+        id: 'desc'
+      },
+      select:{
+        from: {
+          id: true,
+          name: true,
+        },
+        to: {
+          id: true,
+          name: true,
+        }
+      }
+    });
     return reminders;
   }
 
@@ -27,29 +43,38 @@ export class RemindersService {
   }
 
   async create(data: any) {
+    const { fromId, toId } = data;
+
+    const from = await this.people.findOne(fromId);
+
+    const to = await this.people.findOne(toId);
+
     const newReminder = {
-      ...data,
+      text: data.text,
+      from,
+      to,
       read: false,
-      createdAt: new Date()
     }
 
     const reminder = this.remindersRepository.create(newReminder)
-    return this.remindersRepository.save(reminder);
+    this.remindersRepository.save(reminder);
+    return {
+      ...reminder,
+      fromId: {
+        id: from.id,
+      },
+      toId: {
+        id: to.id,
+      },
+    }
   }
 
   async update(id: number, updateReminderDto: UpdateReminderDto) {
-    const partialUpdateReminderDto = {
-      read: updateReminderDto?.read,
-      text: updateReminderDto?.text,
-    }
-    const reminder = await this.remindersRepository.preload({ 
-      id,
-      ...partialUpdateReminderDto,
-    });
-    if (!reminder) {
-      throw new NotFoundException('Reminder not found');
-    }
-    return this.remindersRepository.save(reminder);
+    const reminder = await this.findOne(id);
+    reminder.text = updateReminderDto.text ?? reminder.text;
+    reminder.read = updateReminderDto.read ?? reminder.read;
+    await this.remindersRepository.save(reminder);
+    return reminder;
   }
 
   async remove(id: number) {
