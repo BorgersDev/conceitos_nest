@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UsePipes } from '@nestjs/common';
 import { RemindersService } from './reminders.service';
 import { CreateReminderDto } from './dto/create-reminder.dto';
 import { UpdateReminderDto } from './dto/update-recado.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { ParseIntIdPipe } from 'src/common/dto/pipes/parse-int-id.pipe';
 
 @Controller('reminders')
 export class RemindersController {
@@ -13,7 +14,7 @@ export class RemindersController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id') id: number) {
     return this.remindersService.findOne(id)
   }
 
@@ -23,12 +24,12 @@ export class RemindersController {
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateReminderDto: UpdateReminderDto) {
+  update(@Param('id') id: number, @Body() updateReminderDto: UpdateReminderDto) {
     return this.remindersService.update(id, updateReminderDto)
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id') id: number) {
     return this.remindersService.remove(id)
   }
 }
